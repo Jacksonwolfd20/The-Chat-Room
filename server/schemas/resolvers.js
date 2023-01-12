@@ -2,6 +2,10 @@ const { AuthenticationError } = require('apollo-server-express');
 const { User, Message } = require('../models');
 const { signToken } = require('../utils/auth');
 
+
+
+const onMessagesUpdates = (fn) => subscribers.push(fn);
+let messagenumber = 0
 const resolvers = {
   Query: {
     users: async () => {
@@ -10,9 +14,8 @@ const resolvers = {
     user: async (parent, { username }) => {
       return User.findOne({ username }).populate('messages');
     },
-    messages: async (parent, { username }) => {
-      const params = username ? { username } : {};
-      return Message.find(params).sort({ createdAt: -1 });
+    messages: async () => {
+        return Message.find().sort({ createdAt: -1 });
     },
     message: async (parent, { messageId }) => {
       return Message.findOne({ _id: messageId });
@@ -48,41 +51,30 @@ const resolvers = {
 
       return { token, user };
     },
-    addMessage: async (parent, { text }, context) => {
-      if (context.user) {
-        const message = await Message.create({
-            text,
-          sender: context.user.username,
-        });
-
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $addToSet: { messages: message._id } }
-        );
-
-        return message;
-      }
-      throw new AuthenticationError('You need to be logged in!');
-    },
+    postMessage: async (parent, { sender, text }) => {
     
-    removeMessage: async (parent, { messageId }, context) => {
-      if (context.user) {
-        const message = await Message.findOneAndDelete({
-          _id: messageId,
-          sender: context.user.username,
-        });
+    const number = await Message.count()
+ 
+      Message.create({
+        number,
+        sender,
+        text,
+      });
 
-        await User.findOneAndUpdate(
-          { _id: context.user._id },
-          { $pull: { messages: message._id } }
-        );
-
-        return message;
-      }
-      throw new AuthenticationError('You need to be logged in!');
+      /* subscribers.forEach((fn) => fn()); */
+      return {number};
     },
-   
-  },
-};
 
-module.exports = resolvers;
+  },
+ Subscription: {
+
+    messages: {
+      subscribe: (parent, args, { pubsub }) => {
+        const channel = Math.random().toString(36).slice(2, 15);
+        onMessagesUpdates(() => pubsub.publish(channel, { messages }));
+        setTimeout(() => pubsub.publish(channel, { messages }), 0);
+        return pubsub.asyncIterator(channel);
+      },
+    },
+  }, 
+};
