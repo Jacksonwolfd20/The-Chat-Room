@@ -6,11 +6,10 @@ const typeDefs = gql`
     username: String
     email: String
     password: String
-    messages: [Message]!
   }
 
   type Message {
-    _id: ID
+    _id: ID!
     number: Int
     sender: String
     text: String

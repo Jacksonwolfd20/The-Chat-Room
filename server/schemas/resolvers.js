@@ -1,30 +1,29 @@
-const { AuthenticationError } = require('apollo-server-express');
-const { User, Message } = require('../models');
-const { signToken } = require('../utils/auth');
-
-
+const { AuthenticationError } = require("apollo-server-express");
+const { User, Message } = require("../models");
+const { signToken } = require("../utils/auth");
+const { GraphQLServer, PubSub } = require("graphql-yoga");
 
 const onMessagesUpdates = (fn) => subscribers.push(fn);
-let messagenumber = 0
+const subscribers = [];
 const resolvers = {
   Query: {
     users: async () => {
-      return User.find().populate('messages');
+      return User.find().populate("messages");
     },
     user: async (parent, { username }) => {
-      return User.findOne({ username }).populate('messages');
+      return User.findOne({ username }).populate("messages");
     },
     messages: async () => {
-        return Message.find().sort({ createdAt: -1 });
+      return Message.find().sort({ createdAt: -1 });
     },
     message: async (parent, { messageId }) => {
       return Message.findOne({ _id: messageId });
     },
     me: async (parent, args, context) => {
       if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('messages');
+        return User.findOne({ _id: context.user._id }).populate("messages");
       }
-      throw new AuthenticationError('You need to be logged in!');
+      throw new AuthenticationError("You need to be logged in!");
     },
   },
 
@@ -38,13 +37,13 @@ const resolvers = {
       const user = await User.findOne({ email });
 
       if (!user) {
-        throw new AuthenticationError('No user found with this email address');
+        throw new AuthenticationError("No user found with this email address");
       }
 
       const correctPw = await user.isCorrectPassword(password);
 
       if (!correctPw) {
-        throw new AuthenticationError('Incorrect credentials');
+        throw new AuthenticationError("Incorrect credentials");
       }
 
       const token = signToken(user);
@@ -52,22 +51,19 @@ const resolvers = {
       return { token, user };
     },
     postMessage: async (parent, { sender, text }) => {
-    
-    const number = await Message.count()
- 
+      let number = 0;
+      number = await Message.count();
+
       Message.create({
         number,
         sender,
         text,
       });
-
       /* subscribers.forEach((fn) => fn()); */
-      return {number};
+      return { number, sender, text };
     },
-
   },
- Subscription: {
-
+  /* Subscription: {
     messages: {
       subscribe: (parent, args, { pubsub }) => {
         const channel = Math.random().toString(36).slice(2, 15);
@@ -76,5 +72,9 @@ const resolvers = {
         return pubsub.asyncIterator(channel);
       },
     },
-  }, 
+  }, */
 };
+
+ const pubsub = new PubSub(); 
+
+module.exports = resolvers;
