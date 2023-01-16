@@ -17,7 +17,7 @@ import Auth from '../../utils/auth';
     const toast = useToast();
     const [formState, setFormState] = useState({ email: '', password: '' });
     const [login, { error, data }] = useMutation(LOGIN_USER);
-    // update state based on form input changes
+
     const handleChange = (event) => {
       const { name, value } = event.target;
   
@@ -27,7 +27,7 @@ import Auth from '../../utils/auth';
       });
     };
   
-    // submit form
+
     const handleFormSubmit = async (event) => {
       event.preventDefault();
       console.log(formState);

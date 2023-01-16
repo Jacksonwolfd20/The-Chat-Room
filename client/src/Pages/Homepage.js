@@ -21,7 +21,7 @@ function Homepage() {
         d="flex" justifyContent="center" p={3} bg="white" w="100%" m="40px 0 15px 0" borderRadius="lg" borderWidth="1px"
       >
         <Text fontSize="4xl" fontFamily="ubuntu">
-          Chatter-Box
+          The-Chat-Room
         </Text>
       </Box>
       <Box bg="white" w="100%" p={7} borderRadius="lg" borderWidth="1px">
