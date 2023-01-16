@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { ApolloClient, InMemoryCache, createHttpLink, ApolloProvider } from '@apollo/client';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import "./App.css";
+import { setContext } from '@apollo/client/link/context';
+import Homepage from './Pages/Homepage';
+
+import {Chat} from './Pages/Chat'
+
+const client = new ApolloClient({
+
+  uri: 'http://localhost:3001/graphql',
+  cache: new InMemoryCache()
+
+
+});
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <ApolloProvider client={client}>
+      
+        <Router>
+        
+          <Routes>
+
+              <Route path="/" element={<Homepage />}  />
+              <Route path="/chatroom" element={<Chat />} />
+
+              </Routes>
+              
+        </Router>
+        
+    </ApolloProvider>
     </div>
   );
 }

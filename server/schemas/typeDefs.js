@@ -9,10 +9,9 @@ const typeDefs = gql`
   }
 
   type Message {
-    _id: ID!
-    number: Int
-    sender: String
-    text: String
+    id: ID!
+    user: String!
+    text: String!
   }
 
 
@@ -32,10 +31,12 @@ const typeDefs = gql`
   type Mutation {
     addUser(username: String!, email: String!, password: String!): Auth
     login(email: String!, password: String!): Auth
-    postMessage(sender: String!, text: String!): ID!
-    removeMessage(messageId: ID!): Message
-    updateMessage(messageId: ID!, newtext: String!): Message
+    postMessage(user: String!, text: String!): ID!
+    removeUser(username: String!): User
+    updateUser(username: String!, email: String!): Message
   }
+
+
   
 `;
 
